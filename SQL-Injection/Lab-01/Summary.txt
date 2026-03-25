@@ -1,0 +1,119 @@
+# 🔓 Lab 01: SQL Injection – Retrieve Hidden Data
+
+## 📌 Goal
+
+Retrieve hidden/unreleased products by exploiting a SQL Injection vulnerability.
+
+---
+
+## 🧠 Concept (Understand first)
+
+The application runs a query like:
+
+SELECT * FROM products WHERE category = 'Gifts' AND released = 1
+
+👉 `released = 1` means:
+
+* Only **visible products** are shown
+* Hidden products (`released = 0`) are filtered out
+
+---
+
+## 🚨 Vulnerability
+
+User input (`category`) is directly used in SQL query without validation.
+
+👉 This allows us to **modify the query logic** (SQL Injection) ([PortSwigger][1])
+
+---
+
+## 🔍 What you need to do
+
+### Step 1: Find input point
+
+* Click any category (like "Gifts")
+* Look at URL:
+
+```
+/filter?category=Gifts
+```
+
+👉 `category` is injectable
+
+---
+
+### Step 2: Test vulnerability
+
+Try adding:
+
+```
+'
+```
+
+👉 If error appears → SQL injection confirmed
+
+---
+
+### Step 3: Exploit it
+
+Use payload:
+
+```
+' OR 1=1 --
+```
+
+👉 Final request becomes:
+
+```
+/filter?category=' OR 1=1 --
+```
+
+---
+
+## 💥 Why this works
+
+Modified query:
+
+SELECT * FROM products WHERE category = '' OR 1=1 -- AND released = 1
+
+* `OR 1=1` → always TRUE
+* `--` → comments out rest of query
+
+👉 So:
+
+* `released = 1` is ignored
+* All products (including hidden) are shown ([PortSwigger][1])
+
+---
+
+## ✅ Result
+
+* You will see **unreleased/hidden products**
+* Lab solved
+
+---
+
+## 🛠 Key Takeaways
+
+* SQL Injection can bypass application logic
+* Never trust user input
+* Always use:
+
+  * Prepared statements
+  * Input validation
+
+---
+
+## 🔥 Real-world impact
+
+* Data leakage
+* Authentication bypass
+* Full database access
+
+---
+
+## 🧠 One-line summary
+
+If user input goes into SQL → attacker can control the query.
+
+---
